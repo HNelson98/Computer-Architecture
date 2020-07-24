@@ -38,6 +38,10 @@ class CPU:
         self.branchtable[POP] = self.pop
         self.branchtable[CALL] = self.call
         self.branchtable[RET] = self.ret
+        self.branchtable[CMP] = self.comp
+        self.branchtable[JMP] = self.jmp
+        self.branchtable[JEQ] = self.jeq
+        self.branchtable[JNE] = self.jne
 
         self.fl = 0
         self.resetFlags()
@@ -158,6 +162,34 @@ class CPU:
         retpc = self.ram[self.reg[self.sp]]
         self.reg[self.sp] += 1
         self.pc = retpc
+
+    def comp(self):
+        self.resetFlags()
+        regA = self.reg[self.ram[self.pc + 1]]
+        regB = self.reg[self.ram[self.pc + 2]]
+
+        if regA == regB:
+            self.E = 1
+        elif regA < regB:
+            self.L = 1
+        else:
+            self.G = 1
+
+    def jmp(self):
+        self.pc = self.reg[self.ram[self.pc + 1]]
+    
+    def jeq(self):
+        if self.E == 1:
+            self.pc = self.reg[self.ram[self.pc + 1]]
+        else:
+            self.pc += 2
+    
+    def jne(self):
+        if self.E == 0:
+            self.pc = self.reg[self.ram[self.pc + 1]]
+        else:
+            self.pc += 2
+    
 
     def run(self):
         """Run the CPU."""
